@@ -1,5 +1,6 @@
 import { pgTable, serial, text, varchar, integer, timestamp } from 'drizzle-orm/pg-core';
-import { pgView } from 'drizzle-orm/pg-core';
+import { pgMaterializedView } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 
 // Tabella per le organizzazioni (aziende)
 export const organizations = pgTable('organizations', {
@@ -18,9 +19,16 @@ export const salesForecasts = pgTable('sales_forecasts', {
   organizationId: integer('organization_id').references(() => organizations.id).notNull(),
 });
 
-// Materialized view for dashboard summary
-export const dashboardSummary = pgView('dashboard_summary', {
-  organizationId: integer('organization_id'),
-  totalProducts: integer('total_products'),
-  totalForecastedSales: integer('total_forecasted_sales'),
-}); 
+// Materialized view for dashboard summary - with explicit column mapping
+export const dashboardSummary = pgMaterializedView('dashboard_summary', {
+  organizationId: integer('organizationId'),
+  totalProducts: integer('totalProducts'),
+  totalForecastedSales: integer('totalForecastedSales'),
+}).as(sql`
+  SELECT
+    organization_id as "organizationId",
+    COUNT(DISTINCT product_id) as "totalProducts",
+    SUM(forecasted_sales) as "totalForecastedSales"
+  FROM sales_forecasts
+  GROUP BY organization_id
+`); 

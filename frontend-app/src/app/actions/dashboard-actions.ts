@@ -1,6 +1,8 @@
 "use server";
 
 import { db } from '../../../lib/db';
+import { dashboardSummary } from '../../../lib/schema';
+import { eq } from 'drizzle-orm';
 import { sql } from 'drizzle-orm';
 
 // Mock function for getting organization ID - replace with actual Better Auth implementation
@@ -13,23 +15,16 @@ export async function getDashboardData() {
   const orgId = await getOrganizationId();
   if (!orgId) return null;
 
-  // Query data from the materialized view for better performance
-  const data = await db.execute(sql`
-    SELECT total_products, total_forecasted_sales 
-    FROM dashboard_summary 
-    WHERE organization_id = ${orgId}
-  `);
+  // Query data from the materialized view using type-safe Drizzle queries
+  const data = await db
+    .select({
+      totalProducts: dashboardSummary.totalProducts,
+      totalForecastedSales: dashboardSummary.totalForecastedSales,
+    })
+    .from(dashboardSummary)
+    .where(eq(dashboardSummary.organizationId, orgId));
 
-  // Transform the data to match the frontend expectations
-  if (data[0]) {
-    const row = data[0] as { total_products: string; total_forecasted_sales: string };
-    return {
-      totalProducts: parseInt(row.total_products),
-      totalForecastedSales: parseInt(row.total_forecasted_sales)
-    };
-  }
-
-  return null;
+  return data[0] || null;
 }
 
 export async function refreshDashboardView() {
