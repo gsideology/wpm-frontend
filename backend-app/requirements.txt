@@ -1,0 +1,39 @@
+# Core ML Libraries
+scikit-learn
+statsmodels
+prophet
+xgboost
+tensorflow
+# If you prefer PyTorch for LSTM, uncomment the next line
+# torch
+
+# Data Processing
+pandas
+numpy
+dask
+
+# Infrastructure & Workflow
+sqlalchemy
+psycopg2-binary
+redis
+apache-airflow
+
+# Visualization & Dashboard
+matplotlib
+seaborn
+streamlit
+
+# Utilities
+python-dotenv
+requests
+
+# FastAPI and Web Framework
+fastapi
+uvicorn[standard]
+python-multipart
+python-jose[cryptography]
+passlib[bcrypt]
+pydantic
+
+# Authentication
+PyJWT 

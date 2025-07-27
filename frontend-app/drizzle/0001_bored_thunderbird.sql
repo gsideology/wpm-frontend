@@ -1,0 +1,1 @@
+CREATE MATERIALIZED VIEW "public"."dashboard_summary" AS (select "organization_id", count("product_id") as "totalProducts", sum("forecasted_sales") as "totalForecastedSales" from "sales_forecasts" group by "sales_forecasts"."organization_id");
